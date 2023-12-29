@@ -165,16 +165,19 @@ public class ImagePickerModuleImpl implements ActivityEventListener {
         }
     }
 
-    void onAssetsObtained(List<Uri> fileUris) {
+    void onAssetsObtained(final List<Uri> fileUris) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        executor.submit(() -> {
-            try {
-                callback.invoke(getResponseMap(fileUris, options, reactContext));
-            } catch (RuntimeException exception) {
-                callback.invoke(getErrorMap(errOthers, exception.getMessage()));
-            } finally {
-                callback = null;
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    callback.invoke(getResponseMap(fileUris, options, reactContext));
+                } catch (RuntimeException exception) {
+                    callback.invoke(getErrorMap(errOthers, exception.getMessage()));
+                } finally {
+                    callback = null;
+                }
             }
         });
     }
